@@ -1,0 +1,52 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Initialize the Chrome driver
+        IWebDriver driver = new ChromeDriver();
+
+        try
+        {
+            // Navigate to Google
+            driver.Navigate().GoToUrl("https://www.google.com");
+
+            // Find the search box using its name attribute and type the query
+            IWebElement searchBox = driver.FindElement(By.Name("q"));
+            searchBox.SendKeys("First American India");
+            searchBox.Submit();
+
+            // Wait for the search results to load
+            System.Threading.Thread.Sleep(2000); // You can use WebDriverWait for a better approach
+
+            // Find all the links in the search results
+            IReadOnlyCollection<IWebElement> searchResults = driver.FindElements(By.XPath("//div[@class='yuRUbf']/a"));
+
+            // Extract the href attribute of each link and store them in a list
+            List<string> links = searchResults.Select(result => result.GetAttribute("href")).ToList();
+
+            // Define the file path to store the links
+            string filePath = "GoogleSearchLinks.txt";
+
+            // Write the links to the file
+            File.WriteAllLines(filePath, links);
+
+            Console.WriteLine("Links have been captured and stored in " + filePath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred: " + ex.Message);
+        }
+        finally
+        {
+            // Close the browser
+            driver.Quit();
+        }
+    }
+}
